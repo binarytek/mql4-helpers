@@ -1,4 +1,6 @@
 
+int sameCandlesSum[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
 void findConsequentCandles()
 {
    Print("FindConsequentCandles start.");
