@@ -6,13 +6,14 @@
 
 IMPORTANT:
 
-* [x] Check trend with LWMA and Daily Open
-* [ ] Check Round Numbers
+* [x] Check trend with LWMA and Daily Open.
+* [ ] Expose extern indicator variables.
+* [ ] Check Round Numbers.
 * [ ] Check Price is at a Lower High/Higher Low.
 * [ ] Check the optionals.
 * [ ] Avoid spinning tops.
-* [ ] Make the indicator check the bars in the current history
-* [ ] Make the indicator check not only after a close, but in real time.
+* [ ] Run the bars in the current history.
+* [ ] Check not only after a close, but in real time.
 
 NICE TO HAVE:
 * [ ] Improve the UI of the arrows
