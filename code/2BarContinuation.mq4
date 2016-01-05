@@ -19,7 +19,7 @@
 int lwMASmallPeriod = 35;
 int lwMABigPeriod = 100;
 
-int howManyBarsInHistoryToCheck = 2000; // 
+int howManyBarsInHistoryToCheck = 20000; // 
 
 
 //+------------------------------------------------------------------+
@@ -70,15 +70,11 @@ int ratesD1Counter = 0;
 
 int OnInit() {
    marketDigits = (int)MarketInfo(OrderSymbol(),MODE_DIGITS);
-   Print("ON INIT: ", ArraySize(Open), "  ", IndicatorCounted());
    processHistoryBars();
-   Print("processHistoryBars finished.");
-   
    return(INIT_SUCCEEDED);
 }
 
 void OnDeinit(const int reason) {
-   Print("OnDeinit. ", reason);
    for(int i = ObjectsTotal() - 1; i>-1; i--) {
       string objName = ObjectName(i);
       if (StringFind(objName, arrowObjectName) > -1) {
@@ -233,7 +229,7 @@ void saveDailyOpenHistory(int barIndex) {
    if (TimeDay(Time[barIndex]) != TimeDay(Time[barIndex+1])) {
       ratesD1Counter++;
       dailyOpen = ratesD1[ratesD1Counter][1];
-      Print("Different Day!  Counter: ", ratesD1Counter, "  Day: ", Time[barIndex], "  Open: ", dailyOpen);
+      Print("History Different Day!  Counter: ", ratesD1Counter, "  Day: ", Time[barIndex], "  Open: ", dailyOpen);
    }
 }
    
