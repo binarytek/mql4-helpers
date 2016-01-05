@@ -1,6 +1,7 @@
 //+------------------------------------------------------------------+
-//| @File: candles.mq4                                               |
-//| @Author: binarytek                                               |
+//| @File: 2BarContinuation.mq4                                      |
+//| @Strategy Author: neddihrehat                                    |
+//| @Code Author: binarytek                                          |
 //| @Code: https://github.com/binarytek                              |
 //| @License: MIT                                                    |
 //| @See:  binaryoptionsedge.com/topic/1835-nedds-2-bar-continution/ |
@@ -18,6 +19,8 @@
 int lwMASmallPeriod = 35;
 int lwMABigPeriod = 100;
 
+int howManyBarsInHistoryToCheck = 2000; // 
+
 
 //+------------------------------------------------------------------+
 //| Indicator - VARS                                                 |
@@ -25,6 +28,8 @@ int lwMABigPeriod = 100;
 int count = 0;
 double lwMASmall;
 double lwMABig;
+
+string arrowObjectName = "2bar";
 
 //+------------------------------------------------------------------+
 //| COMMON LIB - VARS                                                |
@@ -56,6 +61,7 @@ double hammerBigWickRatio = 2;
 //+------------------------------------------------------------------+
 double dailyOpen = 0;
 double ratesD1[][6];
+int ratesD1Counter = 0;
 
 
 //+------------------------------------------------------------------+
@@ -64,7 +70,21 @@ double ratesD1[][6];
 
 int OnInit() {
    marketDigits = (int)MarketInfo(OrderSymbol(),MODE_DIGITS);
+   Print("ON INIT: ", ArraySize(Open), "  ", IndicatorCounted());
+   processHistoryBars();
+   Print("processHistoryBars finished.");
+   
    return(INIT_SUCCEEDED);
+}
+
+void OnDeinit(const int reason) {
+   Print("OnDeinit. ", reason);
+   for(int i = ObjectsTotal() - 1; i>-1; i--) {
+      string objName = ObjectName(i);
+      if (StringFind(objName, arrowObjectName) > -1) {
+         ObjectDelete(objName);
+      }
+   }
 }
 
 int OnCalculate(const int rates_total,
@@ -82,25 +102,41 @@ int OnCalculate(const int rates_total,
    checkNewBar();
    if (isNewBar == false)
       return(rates_total);
-   
-   saveDailyOpen();
-
-
+      
    int barIndex = 1;
-   Print("Open/Close: ", Open[barIndex], " / ", Close[barIndex]);
+
+   saveDailyOpen(barIndex);
+   return processBar(barIndex, rates_total);
+}
+
+
+/**
+ * @Depends: howManyBarsInHistoryToCheck
+ */
+void processHistoryBars() {
+   int lastBarIndex = MathMin(howManyBarsInHistoryToCheck, ArraySize(Open)) - 2;
+   for(int i = 2; i <= lastBarIndex; i++) {
+      saveDailyOpenHistory(i);
+      processBar(i, i);
+   }
+}
+
+int processBar(int barIndex, int rates_total) {
+
+   // Print("Open/Close: ", Open[barIndex], " / ", Close[barIndex]);
    
    lwMASmall = normalizeToMarket(iMA(NULL, 0, lwMASmallPeriod, 0, MODE_LWMA, PRICE_CLOSE, barIndex));
    lwMABig = normalizeToMarket(iMA(NULL, 0, lwMABigPeriod, 0, MODE_LWMA, PRICE_CLOSE, barIndex));
-   Print("lwMA small/big:  ", lwMASmall, "  /  ", lwMABig);
+   // Print("lwMA small/big:  ", lwMASmall, "  /  ", lwMABig);
    
    SIGNAL twoBarContSignal = getTwoBarContSignal(barIndex);
    if(twoBarContSignal != SIGNAL_NONE) {
       count++;
    
       if (twoBarContSignal == SIGNAL_CALL) {
-         drawArrowUp(barIndex, "2bar CALL - "+IntegerToString(count), High[barIndex]+20*Point, Lime);
+         drawArrowUp(barIndex, arrowObjectName+"-"+IntegerToString(count), High[barIndex]+30*Point, Lime);
       } else if (twoBarContSignal == SIGNAL_PUT) {
-         drawArrowDown(barIndex, "2bar PUT - "+IntegerToString(count), Low[barIndex]-10*Point, Red);
+         drawArrowDown(barIndex, arrowObjectName+"-"+IntegerToString(count), Low[barIndex]-10*Point, Red);
       }
    }
       
@@ -135,7 +171,7 @@ TREND getTwoBarTrend(int barIndex) {
  * Checks if the last two bars are a continuation pattern and returns their signal.
  * 
  * @Returns: <SIGNAL> a signal. See the common lib.
- * @Depends: normalizeToMarket()
+ * @Depends: candles, commons
  * @See: http://www.binaryoptionsedge.com/topic/1835-nedds-2-bar-continution/
  */
 SIGNAL getTwoBarContPatternsSignal(int curBarIndex) {
@@ -179,13 +215,28 @@ SIGNAL getTwoBarContPatternsSignal(int curBarIndex) {
  * 
  * @Depends: dailyOpen[write]
  */
-void saveDailyOpen() {
+void saveDailyOpen(int barIndex) {
    ArrayCopyRates(ratesD1, Symbol(), PERIOD_D1);
+   // Print("rates size: ", ArrayRange(ratesD1, 0));
+   
    if(ratesD1[0][1] != dailyOpen) {
       dailyOpen = ratesD1[0][1];
-      Print("New Daily Open: ", dailyOpen);
+      Print("New Daily Open for ",  Time[barIndex-1], " : ", dailyOpen);
    }
 }
+
+
+void saveDailyOpenHistory(int barIndex) {
+   ArrayCopyRates(ratesD1, Symbol(), PERIOD_D1);
+   
+   // if a different day
+   if (TimeDay(Time[barIndex]) != TimeDay(Time[barIndex+1])) {
+      ratesD1Counter++;
+      dailyOpen = ratesD1[ratesD1Counter][1];
+      Print("Different Day!  Counter: ", ratesD1Counter, "  Day: ", Time[barIndex], "  Open: ", dailyOpen);
+   }
+}
+   
 
 //+------------------------------------------------------------------+
 //| DRAWING LIB - FUNCTIONS                                          |
