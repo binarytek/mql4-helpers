@@ -12,7 +12,7 @@ IMPORTANT:
 * [ ] Check Price is at a Lower High/Higher Low.
 * [ ] Check the optionals.
 * [ ] Avoid spinning tops.
-* [ ] Run the bars in the current history.
+* [x] Run the bars in the current history. BUT [the Daily Open may not be accurate for every day](http://www.binaryoptionsedge.com/topic/2095-different-daily-open-on-m5-and-d1/).
 * [ ] Check not only after a close, but in real time.
 
 NICE TO HAVE:
