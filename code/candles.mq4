@@ -84,8 +84,8 @@ int OnCalculate(const int rates_total,
       return(rates_total);
    
    saveDailyOpen();
-   
-      
+
+
    int barIndex = 1;
    Print("Open/Close: ", Open[barIndex], " / ", Close[barIndex]);
    
@@ -98,9 +98,9 @@ int OnCalculate(const int rates_total,
       count++;
    
       if (twoBarContSignal == SIGNAL_CALL) {
-         drawArrowUp(barIndex, "Bar-"+IntegerToString(count), High[barIndex]+10*Point, Lime);
+         drawArrowUp(barIndex, "2bar CALL - "+IntegerToString(count), High[barIndex]+20*Point, Lime);
       } else if (twoBarContSignal == SIGNAL_PUT) {
-         drawArrowDown(barIndex, "Bar-"+IntegerToString(count), Low[barIndex]-10*Point, Red);
+         drawArrowDown(barIndex, "2bar PUT - "+IntegerToString(count), Low[barIndex]-10*Point, Red);
       }
    }
       
@@ -195,7 +195,9 @@ void drawArrowUp(int barIndex, string ArrowName, double LinePrice, color LineCol
    ObjectCreate(ArrowName, OBJ_ARROW, 0, Time[barIndex], LinePrice); //draw an up arrow
    ObjectSet(ArrowName, OBJPROP_STYLE, STYLE_SOLID);
    ObjectSet(ArrowName, OBJPROP_ARROWCODE, SYMBOL_ARROWUP);
-   ObjectSet(ArrowName, OBJPROP_COLOR,LineColor);
+   ObjectSet(ArrowName, OBJPROP_COLOR, LineColor);
+   ObjectSet(ArrowName, OBJPROP_BGCOLOR, LineColor);
+   ObjectSet(ArrowName, OBJPROP_WIDTH, 4);
 }
 
 void drawArrowDown(int barIndex, string ArrowName, double LinePrice, color LineColor) {
@@ -203,6 +205,8 @@ void drawArrowDown(int barIndex, string ArrowName, double LinePrice, color LineC
    ObjectSet(ArrowName, OBJPROP_STYLE, STYLE_SOLID);
    ObjectSet(ArrowName, OBJPROP_ARROWCODE, SYMBOL_ARROWDOWN);
    ObjectSet(ArrowName, OBJPROP_COLOR, LineColor);
+   ObjectSet(ArrowName, OBJPROP_BGCOLOR, LineColor);
+   ObjectSet(ArrowName, OBJPROP_WIDTH, 4);
 }
 
 //+------------------------------------------------------------------+
